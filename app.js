@@ -1,7 +1,31 @@
 const { Component, mount, xml, useState } = owl;
 
+class Task extends Component {
+    static template = xml`
+        <li t-attf-style="background-color:#{props.task.color}" class="d-flex align-items-center justify-content-between border p-3 mb-2 rounded">
+            <div class="form-check form-switch fs-5">
+                <input class="form-check-input" type="checkbox" value="" t-on-checked="props.task.isComplete" t-att-id="props.task.id"
+                t-on-click="toggleTask"/>
+                <label class="form-check-label" t-att-for="props.task.id" 
+                t-attf-class="#{props.task.isComplete ? 'text-decoration-line-through' : ''}">
+                    <t t-out="props.task.name"/>
+                </label>
+            </div>
+            <div>
+                <button class="btn btn-primary me-2"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-danger"><i class="bi bi-trash"></i></button>
+            </div>
+        </li>
+    `
+    static props = ["Task"]
+
+    toggleTask() {
+        this.props.task.isComplete = !this.props.task.isComplete;
+    }
+}
+
 class Root extends Component {
-    static template = xml `
+    static template = xml`
     <div>
                     <div class="input-grou-lg w-100 d-flex border rounded align-items-center">
                         <input type="text" class="form-control-lg flex-fill border-0 me-1"
@@ -15,21 +39,12 @@ class Root extends Component {
                 </div>
                 <ul class="d-flex flex-column mt-5 p-0">
                     <t t-foreach="tasks" t-as="task" t-key="task.id">
-                        <li t-attf-style="background-color:#{task.color}" class="d-flex align-items-center justify-content-between border p-3 mb-2 rounded">
-                            <div class="form-check form-switch fs-5">
-                                <input class="form-check-input" type="checkbox" value="" t-att-id="task.id"/>
-                                <label class="form-check-label" t-att-for="task.id">
-                                    <t t-out="task.name"/>
-                                </label>
-                            </div>
-                            <div>
-                                <button class="btn btn-primary me-2"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-danger"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </li>
+                        <Task task="task" />
                     </t>
                 </ul>
     `
+    static components = { Task }
+
     setup() {
         this.state = useState({
             name: "",
@@ -40,19 +55,24 @@ class Root extends Component {
         this.tasks = useState([]);
     }
     addTask() {
-        if (!this.state.name){
+        if (!this.state.name) {
             alert("Please Provide name of the task !");
             return
         }
+
+        const id = Math.random().toString().substring(2, 12);
+
         this.tasks.push({
-            id:1,
-            name:this.state.name,
-            color:this.state.color,
+            id: id,
+            name: this.state.name,
+            color: this.state.color,
             isComplete: false,
         })
 
-    let state = this.state;
-    this.state = {...state, name:"", color:"#fff000"}
+        let state = this.state;
+        this.state = { ...state, name: "", color: "#fff000" }
+
+        console.log(this.tasks);
     };
 }
 
